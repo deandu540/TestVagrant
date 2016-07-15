@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+nodes = [
+  { :hostname => 'dfnode1', :ip => '192.168.1.44' },
+  { :hostname => 'dfnode2', :ip => '192.168.1.45' },
+  { :hostname => 'dfnode3', :ip => '192.168.1.46' }
+]
+
+Vagrant.configure(2) do |config|
+
+  nodes.each do |node|
+    config.vm.define node[:hostname] do |nodeconfig|
+
+        nodeconfig.vm.box = "centos/7"
+        nodeconfig.vm.network "public_network", ip:node[:ip], bridge:"enp8s0"
+        nodeconfig.vm.hostname = node[:hostname]
+        nodeconfig.vm.provider "virtualbox" do |vb|
+          vb.memory = "16384"
+          vb.cpus = "8"
+        end
+        nodeconfig.vm.provision "shell", path: "./common.sh"
+        nodeconfig.vm.provision "shell", path: "./install_mesos.sh"
+
+    end
+  end
+end
+
